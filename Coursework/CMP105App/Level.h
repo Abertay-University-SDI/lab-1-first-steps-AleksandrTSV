@@ -21,4 +21,7 @@ private:
 
 	enum class Direction { UP, DOWN, LEFT, RIGHT };
 	Direction m_direction;
+
+	sf::CircleShape m_food;
+	void spawnFood();
 };

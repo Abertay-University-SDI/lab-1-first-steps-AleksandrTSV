@@ -4,9 +4,13 @@ Level::Level(sf::RenderWindow& hwnd, Input& in) :
 	BaseLevel(hwnd, in)
 {
 	// initialise game objects
-	m_player.setRadius(10);
+	m_player.setRadius(10.f);
 	m_player.setFillColor(sf::Color::Green);
 	m_player.setPosition({ 300, 300 });
+
+	m_food.setRadius(5.f);
+	m_food.setFillColor(sf::Color::Red);
+	spawnFood();
 }
 
 // handle user input
@@ -61,18 +65,30 @@ void Level::update(float dt)
 		m_player.move({ m_speed * dt, 0.f });
 		break;
 	}
-
-	sf::Vector2f pos = m_player.getPosition();
-	float radius = m_player.getRadius();
+///////////////////////////////////////////////////////////////
+	sf::Vector2f player_pos = m_player.getPosition();
+	float player_radius = m_player.getRadius();
 	sf::Vector2u windowSize = m_window.getSize();
 
-	if (pos.x > windowSize.x - 2 * radius || pos.x < 0)
+	if (player_pos.x > windowSize.x - 2 * player_radius || player_pos.x < 0)
 	{
 		m_player.setPosition({ windowSize.x / 2.f, windowSize.y / 2.f });
 	}
-	if (pos.y > windowSize.y - 2 * radius || pos.y < 0)
+	if (player_pos.y > windowSize.y - 2 * player_radius || player_pos.y < 0)
 	{
 		m_player.setPosition({ windowSize.x / 2.f, windowSize.y / 2.f });
+	}
+///////////////////////////////////////////////////////////////
+	float x_dist = (player_pos.x + player_radius) - (m_food.getPosition().x + m_food.getRadius());
+	float y_dist = (player_pos.y + player_radius) - (m_food.getPosition().y + m_food.getRadius());
+
+	float square_dist = (x_dist * x_dist) + (y_dist * y_dist);
+	float rad_sum = player_radius + m_food.getRadius();
+
+	if (square_dist < rad_sum * rad_sum) 
+	{
+		spawnFood();
+		m_speed *= 1.1f;
 	}
 }
 
@@ -81,6 +97,15 @@ void Level::render()
 {
 	beginDraw();
 	m_window.draw(m_player);
+	m_window.draw(m_food);
 	endDraw();
+}
+
+void Level::spawnFood() 
+{
+	sf::Vector2u windowSize = m_window.getSize();
+	float x = rand() % windowSize.x;
+	float y = rand() % windowSize.y;
+	m_food.setPosition({ x,y });
 }
 
